@@ -1,0 +1,1266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MyBus — Live Bus Tracking</title>
+<link rel="icon" type="image/png" href="12.png" />
+<!-- favicon uses the FIRST logo -->
+<link rel="icon" type="image/png" href="mbk-assets/mbk-logo-1.png" />
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#081126; --card:#0b1a2a; --ink:#e6eef8;
+    --muted:#9aa8bd; --accent:#0ea5e9; --accent2:#2dd4bf; --accent3:#326a63;
+    --glass:rgba(255,255,255,.04); --glass2:rgba(255,255,255,.06);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit}
+
+  /* navbar */
+  
+  .nav{position:sticky;top:0;z-index:70;backdrop-filter:saturate(150%) blur(8px);
+       background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.15));
+       border-bottom:1px solid rgba(255,255,255,.06)}
+  .nav .row{max-width:1200px;margin:auto;padding:12px 18px;display:flex;align-items:center;gap:16px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800}
+  .brand img.logo-img{width:34px;height:34px;border-radius:10px;object-fit:contain;background:linear-gradient(135deg,var(--accent),var(--accent3));box-shadow:0 6px 14px rgba(0,0,0,.35)}
+  .navlinks{margin-left:auto;display:flex;gap:14px;flex-wrap:wrap}
+  .navlinks a{padding:8px 10px;border-radius:10px}
+  .navlinks a:hover{background:var(--glass)}
+  .cta{margin-left:8px;padding:8px 12px;border-radius:10px;background:linear-gradient(90deg,var(--accent),#36b1d8);color:#041226;font-weight:800}
+
+  /* TEAM STRIP (faces) */
+  .team-strip{position:relative;z-index:60;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));
+              border-bottom:1px solid rgba(255,255,255,.08)}
+  .ts-wrap{max-width:1200px;margin:auto;padding:10px 18px;display:flex;align-items:center;gap:16px;justify-content:space-between;flex-wrap:wrap}
+  .ts-left{display:flex;align-items:center;gap:10px}
+  .ts-logo{width:42px;height:42px;border-radius:12px;object-fit:contain;background:linear-gradient(135deg,var(--accent),var(--accent2))}
+  .ts-title{font-weight:800}
+  .ts-people{display:flex;gap:12px;overflow:auto;padding:6px 0}
+  .person{margin:0;text-align:center}
+  .person img{width:48px;height:48px;border-radius:999px;object-fit:cover;border:2px solid rgba(255,255,255,.12);box-shadow:0 8px 18px rgba(0,0,0,.35)}
+  .person figcaption{margin-top:4px;font-size:11px;opacity:.9;white-space:nowrap}
+  @media (max-width:980px){.team-strip{position:sticky;top:56px}}
+
+  /* sections */
+  section{scroll-margin-top:72px}
+
+  /* ===== HERO with REAL 3D BUS ===== */
+  .hero{
+    position:relative;min-height:88vh;display:grid;place-items:center;padding:80px 18px 40px;
+    background:
+      radial-gradient(900px 500px at 15% 15%, rgba(14,165,233,.10), transparent 35%),
+      radial-gradient(800px 400px at 85% 80%, rgba(50,106,99,.10), transparent 35%);
+  }
+  .hero .wrap{max-width:1200px;display:grid;grid-template-columns:1.1fr 1fr;gap:28px}
+
+  .card{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));
+        border:1px solid rgba(255,255,255,.06);border-radius:18px;padding:22px;box-shadow:0 20px 60px rgba(2,6,23,.55)}
+  h1{font-size:48px;line-height:1.05;margin:0 0 8px}
+  .muted{color:var(--muted)}
+  .kpis{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0}
+  .kpi{padding:10px 12px;border-radius:12px;background:var(--glass);min-width:140px}
+  .kpi h5{margin:0;color:var(--muted);font-size:12px}
+  .kpi p{margin:6px 0 0;font-weight:800;font-size:18px}
+  .btns{display:flex;gap:10px;margin-top:14px}
+  .btn{padding:10px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:transparent;color:var(--ink);font-weight:700;cursor:pointer}
+  .btn.primary{background:linear-gradient(90deg,var(--accent),#36b1d8);color:#041226;border:0}
+
+  /* 3D scene container */
+  .scene3d{
+    height:460px;border-radius:18px;overflow:hidden;
+    background:radial-gradient(1200px 600px at 50% 0%, rgba(14,165,233,.15), transparent 60%),
+               linear-gradient(180deg,#04101c 0%, #071828 100%);
+    border:1px solid rgba(255,255,255,.06);
+    box-shadow:0 20px 60px rgba(2,6,23,.65);
+    perspective:1200px;transform-style:preserve-3d;position:relative;
+  }
+  .city{position:absolute;inset:0;transform-style:preserve-3d;transform:rotateX(15deg)}
+  .building{position:absolute;width:70px;height:140px;background:linear-gradient(180deg,#0a2740,#0d3250);
+    border:1px solid rgba(255,255,255,.05);box-shadow:0 10px 30px rgba(0,0,0,.4);transform-style:preserve-3d;border-radius:8px}
+  .building::after{content:"";position:absolute;inset:0;background:
+      radial-gradient(6px 4px at 20% 20%, rgba(255,255,255,.06), transparent 60%),
+      radial-gradient(6px 4px at 40% 40%, rgba(255,255,255,.05), transparent 60%),
+      radial-gradient(6px 4px at 60% 60%, rgba(255,255,255,.05), transparent 60%),
+      radial-gradient(6px 4px at 80% 30%, rgba(255,255,255,.06), transparent 60%);opacity:.9}
+  .b1{left:5%; bottom:90px; transform:translateZ(-200px) rotateY(-6deg)}
+  .b2{left:18%; bottom:110px; height:170px; transform:translateZ(-250px) rotateY(3deg)}
+  .b3{right:12%; bottom:120px; height:160px; transform:translateZ(-260px) rotateY(-4deg)}
+  .b4{right:22%; bottom:90px; height:130px; transform:translateZ(-190px) rotateY(5deg)}
+
+  .road3d{position:absolute;left:5%;right:5%;bottom:40px;height:120px;border-radius:16px;
+    background:linear-gradient(180deg,#0b3b54 0%, #08384a 100%);box-shadow:0 18px 40px rgba(0,0,0,.6), inset 0 2px 10px rgba(255,255,255,.08);
+    transform:translateZ(-40px) rotateX(5deg);overflow:hidden}
+  .lane{position:absolute;top:50%;left:-20%;right:-20%;height:6px;margin-top:-3px;background:repeating-linear-gradient(90deg, rgba(255,255,255,.85) 0 40px, transparent 40px 80px);filter:blur(.4px);opacity:.9;transform:translateZ(10px);animation:flow 2.8s linear infinite}
+  @keyframes flow{from{transform:translate(-40px,0) translateZ(10px)} to{transform:translate(40px,0) translateZ(10px)}}
+  .bus3d{position:absolute;bottom:14px;left:-140px;width:140px;height:54px;transform-style:preserve-3d;transform:translateZ(20px) rotateX(2deg);animation:drive 8s linear infinite}
+  @keyframes drive{0%{left:-160px;transform:translateZ(20px) rotateX(2deg)}50%{left:calc(100% - 20px)}51%{transform:translateZ(20px) rotateX(2deg) scaleX(-1)}100%{left:-160px;transform:translateZ(20px) rotateX(2deg) scaleX(-1)}}
+  .bus-body{position:absolute;inset:0;background:linear-gradient(135deg,var(--accent),var(--accent3));border-radius:10px;box-shadow:0 6px 16px rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.25)}
+  .window{position:absolute;top:8px;height:18px;background:linear-gradient(180deg,#dff7ff,#8fd2f0);border-radius:4px}
+  .w1{left:12px;width:28px}.w2{left:48px;width:28px}.w3{left:84px;width:28px}.w4{left:118px;width:14px}
+  .door{position:absolute;left:78px;top:6px;bottom:6px;width:2px;background:rgba(0,0,0,.2)}
+  .light{position:absolute;left:6px;top:26px;width:10px;height:8px;border-radius:4px;background:#fffa}
+  .grill{position:absolute;left:6px;top:38px;width:18px;height:4px;border-radius:2px;background:#0004}
+  .wheel{position:absolute;bottom:-8px;width:24px;height:24px;border-radius:50%;background:radial-gradient(closest-side,#000, #111 60%, #333 62%);border:2px solid #222;box-shadow:inset 0 0 6px #000;animation:spin 1.2s linear infinite}
+  .wL{left:26px}.wR{right:20px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* HUD card */
+  .buscard{position:absolute;right:18px;top:18px;width:360px;border-radius:14px;padding:14px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.06);transform:translateZ(60px) rotateX(4deg)}
+  .bushead{display:flex;gap:10px;align-items:center}
+  .buslogo-img{width:46px;height:46px;border-radius:10px;object-fit:cover;box-shadow:0 6px 14px rgba(0,0,0,.35)}
+  .pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .pill{font-size:12px;font-weight:800;padding:6px 10px;border-radius:999px}
+  .pill.seat{background:linear-gradient(90deg,#042e44,#0b556a)}
+  .pill.eta{background:linear-gradient(90deg,#1a3b2e,#274c3b)}
+  .pill.last{background:linear-gradient(90deg,#4b2b3a,#632b4a)}
+
+  /* Live lane & arrows */
+  .laneWrap{padding:26px 0;background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.02));
+            border-top:1px solid rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.05)}
+  .laneWrap .wrap{max-width:1200px;margin:auto;padding:0 18px;position:relative}
+  .hscroll{display:flex;gap:14px;overflow:auto;scroll-snap-type:x mandatory;padding-bottom:6px}
+  .tile{min-width:300px;scroll-snap-align:center;border-radius:14px;padding:14px;background:var(--glass);border:1px solid rgba(255,255,255,.06)}
+  .arrows{position:absolute;inset:0;pointer-events:none}
+  .arrow{position:absolute;top:40%;width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.35);
+         border:1px solid rgba(255,255,255,.15);display:grid;place-items:center;font-weight:900;pointer-events:auto;cursor:pointer;user-select:none}
+  .arrow.l{left:-6px}.arrow.r{right:-6px}
+
+  /* PLANS (Basic + Premium) horizontal */
+  .plans{padding:26px 0;background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.01));border-top:1px solid rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.05)}
+  .plans .wrap{max-width:1200px;margin:auto;padding:0 18px;position:relative}
+  .plan{min-width:320px;scroll-snap-align:center;border-radius:16px;padding:16px;border:1px solid rgba(255,255,255,.1);
+        background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.04)); position:relative}
+  .plan h3{margin:0 0 6px}
+  .price{font-size:22px;font-weight:800;margin:6px 0 10px}
+  .feat{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:14px;margin:6px 0}
+  .feat:before{content:"✓";display:inline-block;width:18px;height:18px;border-radius:50%;background:rgba(82,255,168,.18);color:#b8ffd8;display:grid;place-items:center;font-size:12px}
+  .plan .btn{width:100%;margin-top:10px}
+  .plan[data-badge]::after{content:attr(data-badge);position:absolute;right:14px;top:14px;font-size:11px;font-weight:800;padding:4px 8px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#02121f}
+
+  /* Testimonials */
+  .testimonials{padding:26px 0;background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.02));border-top:1px solid rgba(255,255,255,.05)}
+  .tcard{min-width:340px;scroll-snap-align:center;border-radius:16px;padding:16px;border:1px solid rgba(255,255,255,.1);
+         background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.04))}
+  .trow{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .trow img{width:42px;height:42px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.12)}
+  .tname{font-weight:800}
+  .torg{color:var(--muted);font-size:12px}
+
+  .section{max-width:1200px;margin:60px auto;padding:0 18px;display:grid;gap:16px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .feature{padding:14px;border-radius:12px;background:var(--glass)}
+  .feature strong{font-size:16px}
+  .reveal{opacity:0;transform:translateY(20px);transition:all .6s cubic-bezier(.2,.6,.2,1)}
+  .reveal.on{opacity:1;transform:none}
+
+  footer{margin:60px 0 30px;color:var(--muted);text-align:center}
+  .footbrand{display:flex;gap:8px;align-items:center;justify-content:center;margin-bottom:10px}
+  .footbrand img{width:40px;height:40px;border-radius:10px;object-fit:contain;background:linear-gradient(135deg,var(--accent),var(--accent3))}
+  .footbrand b{color:#eaf2ff}
+
+  /* modals */
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;padding:18px}
+  .modal .box{max-width:520px;width:100%;background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.05));
+              border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:18px}
+  .rowform{display:grid;gap:10px}
+  input,select{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:var(--ink);padding:10px 12px;border-radius:10px}
+  .closex{position:absolute;right:12px;top:10px;cursor:pointer;font-weight:800}
+
+  /* responsive */
+  @media (max-width:980px){
+    .hero .wrap{grid-template-columns:1fr}
+    h1{font-size:36px}
+    .buscard{position:static;transform:none;width:auto;margin-top:12px}
+    .scene3d{height:420px}
+  }
+  /* ===== Client Experience layout + padding fix ===== */
+.testimonials{
+  padding:72px 0 60px;                 /* more air above/below */
+}
+.testimonials .wrap{
+  max-width:1200px; margin:auto;       /* center the row */
+  padding:0 18px;
+}
+
+/* Desktop = neat 3-column grid, Mobile = scroll */
+#tScroll{
+  display:grid; grid-template-columns:repeat(3, minmax(0,1fr));
+  gap:24px;                            /* space between cards */
+  overflow:visible;                    /* no scroll on desktop */
+}
+@media (max-width:1024px){
+  #tScroll{ display:flex; gap:18px; overflow:auto; scroll-snap-type:x mandatory; }
+  #tScroll>.tcard{ min-width:320px; scroll-snap-align:center; }
+}
+
+/* Card internals */
+.tcard{
+  padding:22px 24px;                   /* inner padding */
+  border-radius:18px;
+  background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+  border:1px solid rgba(255,255,255,.10);
+  box-shadow:0 22px 60px rgba(2,6,23,.45), inset 0 1px 0 rgba(255,255,255,.06);
+  display:flex; flex-direction:column; justify-content:space-between;
+  min-height:170px;                    /* consistent height */
+}
+.trow{ display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+.trow img{ width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid rgba(255,255,255,.12); }
+.tname{ font-weight:800; font-size:18px; line-height:1.1; }
+.torg{ color:var(--muted); font-size:12px; margin-top:2px; }
+.tcard p{ margin:0; font-size:16px; line-height:1.5; }
+/* ===== Dark theme arrows (Plans, Live, Testimonials) ===== */
+.plans .wrap, .laneWrap .wrap, .testimonials .wrap { overflow: hidden; } /* prevent page-level h-scroll from arrows */
+
+.plans .arrow, .laneWrap .arrow, .testimonials .arrow{
+  background: rgba(6,13,27,.82);                  /* deep navy */
+  border: 1px solid rgba(255,255,255,.08);
+  color: #dbe7ff;                                  /* ink */
+  backdrop-filter: blur(6px);
+  box-shadow: 0 8px 24px rgba(2,6,23,.5), inset 0 0 0 1px rgba(255,255,255,.04);
+  transition: transform .15s ease, background .15s ease, box-shadow .15s ease;
+}
+.plans .arrow:hover, .laneWrap .arrow:hover, .testimonials .arrow:hover{
+  background: rgba(6,13,27,.95);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 28px rgba(2,6,23,.55), inset 0 0 0 1px rgba(255,255,255,.06);
+}
+.plans .arrow:active, .laneWrap .arrow:active, .testimonials .arrow:active{
+  transform: translateY(0);
+}
+
+/* Make the chevrons a bit bolder */
+.plans .arrow, .laneWrap .arrow { font-size: 22px; line-height: 1; }
+
+/* ===== Dark horizontal scrollbars for the carousels ===== */
+#plansScroll, #hscroll, #tScroll{
+  scrollbar-color: #1b2a45 #0b152b;   /* Firefox: thumb, track */
+  scrollbar-width: thin;               /* Firefox: smaller bar */
+}
+
+/* WebKit (Chrome/Edge/Safari) */
+#plansScroll::-webkit-scrollbar,
+#hscroll::-webkit-scrollbar,
+#tScroll::-webkit-scrollbar{ height: 10px; }
+
+#plansScroll::-webkit-scrollbar-track,
+#hscroll::-webkit-scrollbar-track,
+#tScroll::-webkit-scrollbar-track{
+  background: #0b152b;                 /* dark track */
+  border-radius: 999px;
+}
+
+#plansScroll::-webkit-scrollbar-thumb,
+#hscroll::-webkit-scrollbar-thumb,
+#tScroll::-webkit-scrollbar-thumb{
+  background: linear-gradient(90deg,#0f2a4a,#18365a); /* navy thumb */
+  border-radius: 999px;
+  border: 2px solid #0b152b;                              /* inset outline */
+}
+
+#plansScroll::-webkit-scrollbar-thumb:hover,
+#hscroll::-webkit-scrollbar-thumb:hover,
+#tScroll::-webkit-scrollbar-thumb:hover{
+  background: linear-gradient(90deg,#143355,#1f426d);
+}
+/* --- remove the blue gradient/glow behind all logo images --- */
+.logo-img,
+.ts-logo,
+.buslogo-img,
+.footbrand img{
+  background: none !important;   /* was: linear-gradient(... var(--accent) ...) */
+  box-shadow: none !important;   /* drop any soft blue glow */
+  filter: none !important;       /* in case a filter was added earlier */
+}
+
+/* if an old text logo <div class="brand logo"> or .buslogo still exists: neutralize it */
+.brand .logo,
+.buslogo{
+  background: none !important;
+  color: inherit !important;
+  box-shadow: none !important;
+}
+/* === Testimonials: center spotlight carousel === */
+#tScroll{
+  display:flex;                     /* horizontal row */
+  gap:24px;
+  overflow-x:auto;
+  scroll-snap-type:x mandatory;     /* snap by cards */
+  scroll-padding-left:50%;          /* allow centering */
+  scroll-padding-right:50%;
+  padding:8px 0 28px;
+}
+
+#tScroll .tcard{
+  min-width: clamp(320px, 38vw, 520px);
+  scroll-snap-align: center;        /* snap to center */
+  transition: transform .25s ease, opacity .25s ease, box-shadow .25s ease;
+  transform-origin: center;
+  opacity:.55;                      /* default = dim */
+  transform: scale(.94);
+}
+
+#tScroll .tcard.is-active{
+  opacity:1;
+  transform: scale(1.06);
+  z-index: 2;
+  box-shadow:
+    0 26px 70px rgba(2,6,23,.55),
+    inset 0 1px 0 rgba(255,255,255,.06);
+}
+
+/* keep section nicely spaced */
+.testimonials{ padding: 64px 0 56px; }
+/* Spotlight carousel — subtle scale + full opacity on center */
+#tScroll{
+  display:flex;
+  gap:24px;
+  overflow-x:auto;
+  scroll-snap-type:x mandatory;
+  scroll-padding-left:50%;
+  scroll-padding-right:50%;
+  padding:8px 0 28px;
+}
+
+#tScroll .tcard{
+  min-width: clamp(320px, 38vw, 520px);
+  scroll-snap-align:center;
+  transition: transform .22s ease, opacity .22s ease, box-shadow .22s ease;
+  transform-origin:center;
+  opacity:.55;              /* side cards dimmed */
+  transform:scale(.98);     /* tiny shrink on sides */
+}
+
+#tScroll .tcard.is-active{
+  opacity:1;                /* center = 100% */
+  transform:scale(1.02);    /* gentle bump only */
+  z-index:2;
+  box-shadow:0 26px 70px rgba(2,6,23,.55), inset 0 1px 0 rgba(255,255,255,.06);
+}
+/* Demo request widget */
+.demo-card{display:grid;gap:10px;margin-top:10px}
+.demo-row{display:flex;gap:10px;align-items:center}
+.demo-row > *{flex:1}
+.demo-help{color:var(--muted);font-size:12px}
+.quote{padding:10px 12px;border-radius:10px;background:var(--glass);font-weight:800}
+#fleet{accent-color:var(--accent)}
+.btn.whatsapp{background:linear-gradient(90deg,#25d366,#128c7e);color:#041226;border:0}
+input,select,textarea{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:var(--ink);padding:10px 12px;border-radius:10px}
+textarea{resize:vertical;min-height:70px}
+
+/* two-column layout */
+.contact-grid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;   /* left | right */
+  gap: 24px;
+}
+
+/* your generic card look */
+.card{
+  background:#0b1a2a;
+  border:1px solid rgba(148,163,184,.15);
+  border-radius:16px;
+  padding:16px;
+}
+
+/* actions panel — full width of the left column */
+.actions-left{
+  margin-top:16px;          /* spacing under Team MBK */
+}
+
+/* buttons */
+.act{
+  display:block;
+  width:100%;
+  text-align:left;
+  padding:10px 14px;
+  margin-bottom:10px;
+  border-radius:12px;
+  border:1px solid rgba(148,163,184,.2);
+  background:#0c1a2b;
+  color:#e6eef8;
+  font-weight:600;
+  cursor:pointer;
+  transition:all .2s ease;
+}
+.act:last-child{ margin-bottom:0; }
+.act:hover{
+  background:#0f2136;
+  border-color:rgba(14,165,233,.4);
+  transform:translateX(3px);
+}
+
+/* mobile: stack; left stays above right */
+@media (max-width: 900px){
+  .contact-grid{ grid-template-columns:1fr; }
+  .right{ order:2; }
+}
+
+/* base card (you already have .card) */
+.actions-left.fancy{
+  position: relative;
+  overflow: hidden;                 /* keep bubbles inside */
+  isolation: isolate;               /* layer for blend/glow */
+  backdrop-filter: blur(2px);
+  box-shadow: 0 10px 30px rgba(0,0,0,.35),
+              inset 0 0 0 1px rgba(148,163,184,.08);
+}
+
+/* bubble field */
+.bubble-field{
+  position:absolute; inset:0; z-index:-1;
+  overflow:hidden; pointer-events:none;
+}
+.bubble-field span{
+  position:absolute; bottom:-40px;
+  width:14px; height:14px; border-radius:999px;
+  background: radial-gradient(circle at 30% 30%, #67e8f9 0%, #0ea5e9 60%, rgba(14,165,233,.4) 100%);
+  filter: blur(0.2px);
+  opacity: .25;
+  animation: rise var(--t,10s) linear infinite;
+  transform: translateX(var(--x,0)) scale(var(--s,1));
+  border:1px solid rgba(255,255,255,.06);
+  box-shadow: 0 0 12px rgba(14,165,233,.25);
+}
+/* different sizes/speeds/starts */
+.bubble-field span:nth-child(1){ left:8%;  --t:12s; --x:-8px;  --s:1.2; animation-delay: -2s;}
+.bubble-field span:nth-child(2){ left:22%; --t:10s; --x:10px;  --s:0.9; animation-delay: -6s;}
+.bubble-field span:nth-child(3){ left:36%; --t:14s; --x:-6px;  --s:1.1; animation-delay: -9s;}
+.bubble-field span:nth-child(4){ left:50%; --t:11s; --x:12px;  --s:0.8; animation-delay: -4s;}
+.bubble-field span:nth-child(5){ left:64%; --t:13s; --x:-12px; --s:1.0; animation-delay: -7s;}
+.bubble-field span:nth-child(6){ left:78%; --t:9s;  --x:6px;   --s:0.85;animation-delay: -3s;}
+.bubble-field span:nth-child(7){ left:90%; --t:15s; --x:-10px; --s:1.3; animation-delay: -11s;}
+.bubble-field span:nth-child(8){ left:5%;  --t:9s;  --x:4px;   --s:0.7; animation-delay: -1s;}
+.bubble-field span:nth-child(9){ left:28%; --t:16s; --x:-14px; --s:1.4; animation-delay: -12s;}
+.bubble-field span:nth-child(10){left:72%; --t:12s; --x:8px;   --s:1.0; animation-delay: -5s;}
+
+@keyframes rise{
+  0%   { transform: translate(0, 0)        translateX(var(--x)) scale(var(--s)); opacity:.0;}
+  10%  { opacity:.25;}
+  100% { transform: translate(0, -260px)   translateX(calc(var(--x)*2)) scale(var(--s));
+          opacity:0; }
+}
+
+/* action buttons (stacked) */
+.act{
+  position: relative;
+  display:block; width:100%; text-align:left;
+  padding:12px 16px; margin-bottom:12px;
+  border-radius:14px; border:1px solid rgba(148,163,184,.18);
+  background: #0c1a2b;
+  color:#e6eef8; font-weight:600; cursor:pointer;
+  transition: border-color .2s, transform .15s, background .2s;
+  overflow:hidden;
+}
+.act:last-child{ margin-bottom:0; }
+.act:hover{ border-color: rgba(14,165,233,.5); background:#0f2136; transform: translateX(3px); }
+
+/* ripple */
+.act::after{
+  content:""; position:absolute; left:var(--rx,50%); top:var(--ry,50%);
+  width:0; height:0; transform:translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(103,232,249,.30), rgba(14,165,233,0) 60%);
+  border-radius:50%;
+  transition: width .35s ease, height .35s ease, opacity .4s ease;
+  opacity:0;
+}
+.act:active::after{
+  width:240px; height:240px; opacity:1;
+}
+
+/* optional soft vignette around the actions card */
+.actions-left.fancy::before{
+  content:""; position:absolute; inset:-40% -10% -10% -40%;
+  background: radial-gradient(60% 40% at 0% 100%, rgba(14,165,233,.12), transparent 60%);
+  pointer-events:none; z-index:-1;
+}
+
+  
+</style>
+</head>
+<body>
+  <!-- NAV -->
+  <div class="nav">
+    <div class="row">
+      <div class="brand"><img class="logo-img" src="12.png" alt="MBK logo"> MyBus</div>
+      <nav class="navlinks">
+        <a href="#home">Home</a><a href="#live">Live</a><a href="#plans">Plans</a>
+        <a href="#routes">Routes</a><a href="#booking">Booking</a><a href="#contact">Contact</a>
+      </nav>
+      <a class="cta" href="#booking" id="ctaBook">Reserve</a>
+    </div>
+  </div>
+
+  <!-- TEAM STRIP (faces) -->
+  <section class="team-strip" aria-label="MyBus team">
+    <div class="ts-wrap">
+      <div class="ts-left">
+        <img class="ts-logo" src="12.png" alt="MBK">
+        <div class="ts-title">Team MBK</div>
+      </div>
+      <div class="ts-people">
+        <figure class="person"><img src="8.png" alt="Lasith Eshan"><figcaption>Lasith Eshan</figcaption></figure>
+        <figure class="person"><img src="10.png" alt="Dineth Sewmina"><figcaption>Dineth Sewmina</figcaption></figure>
+        <figure class="person"><img src="5.png" alt="Dulshi Ranaweera"><figcaption>Dulshi Ranaweera</figcaption></figure>
+        <figure class="person"><img src="7.png" alt="Thiseni Sineka"><figcaption>Thiseni Sineka</figcaption></figure>
+        <figure class="person"><img src="14.png" alt="Daneesha Dulmith"><figcaption>Daneesha Dulmith</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- HERO -->
+  <section id="home" class="hero">
+    <div class="wrap">
+      <!-- Left: copy & KPIs -->
+      <div class="card reveal">
+        <h1>Track buses in real time. Reserve seats. Arrive relaxed.</h1>
+        <p class="muted">Built for Sri Lankan routes. One phone per bus. QR payments & seat visibility out of the box.</p>
+        <div class="kpis">
+          <div class="kpi"><h5>Active Buses</h5><p id="kpiBuses">—</p></div>
+          <div class="kpi"><h5>Avg ETA</h5><p id="kpiETA">—</p></div>
+          <div class="kpi"><h5>Users Online</h5><p id="kpiUsers">—</p></div>
+        </div>
+        <div class="btns">
+          <button class="btn primary" id="btnTrack">Start Tracking (demo)</button>
+          <button class="btn" id="btnLearn">Learn More</button>
+        </div>
+      </div>
+
+      <!-- Right: TRUE 3D scene with driving bus -->
+      <div class="card reveal" style="padding:0;overflow:visible">
+        <div class="scene3d" id="scene">
+          <div class="city" id="city">
+            <div class="building b1"></div><div class="building b2"></div><div class="building b3"></div><div class="building b4"></div>
+            <div class="road3d"><div class="lane"></div>
+              <div class="bus3d" id="bus3d" aria-label="3D bus driving">
+                <div class="bus-body"></div>
+                <div class="window w1"></div><div class="window w2"></div><div class="window w3"></div><div class="window w4"></div>
+                <div class="door"></div><div class="light"></div><div class="grill"></div>
+                <div class="wheel wL"></div><div class="wheel wR"></div>
+              </div>
+            </div>
+
+            <!-- Floating HUD card -->
+            <aside class="buscard" id="busCard">
+              <div class="bushead">
+                <img class="buslogo-img" src="12.png" alt="MBK">
+                <div>
+                  <strong id="busTitle">Bus 138 — Colombo → Moratuwa</strong>
+                  <div class="muted" id="busSub">Driver D-034 • Live run</div>
+                </div>
+              </div>
+              <div class="pills">
+                <div class="pill seat" id="seatPill">Seats: Available</div>
+                <div class="pill eta" id="etaPill">ETA: 10 min</div>
+                <div class="pill last" id="lastPill">Not last bus</div>
+              </div>
+              <div style="display:flex;gap:10px;justify-content:space-between;margin-top:10px">
+                <small class="muted">Speed: <span id="speedTxt">36 km/h</span></small>
+                <div>
+                  <button class="btn primary" id="trackBtn">Track</button>
+                  <button class="btn" id="reserveBtn">Reserve</button>
+                </div>
+              </div>
+              <small class="muted" style="display:block;margin-top:10px">ETA uses live speed + historical segment data.</small>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HORIZONTAL LIVE LANE -->
+  <div class="laneWrap" id="live">
+    <div class="wrap">
+      <h2 style="margin:0 0 8px">Live buses</h2>
+      <p class="muted" style="margin:0 0 12px">Scroll left/right or use ← → keys. Click a tile to expand.</p>
+      <div class="hscroll" id="hscroll" tabindex="0" aria-label="live buses"></div>
+      <div class="arrows"><div class="arrow l" id="arrowL">‹</div><div class="arrow r" id="arrowR">›</div></div>
+    </div>
+  </div>
+
+  <!-- PLANS (Basic + Premium) -->
+  <div class="plans" id="plans">
+    <div class="wrap">
+      <h2 style="margin:0 0 8px">Plans</h2>
+      <p class="muted" style="margin:0 0 12px">Swipe / drag left↔right to compare.</p>
+      <div class="hscroll" id="plansScroll" tabindex="0" aria-label="plans"></div>
+      <div class="arrows"><div class="arrow l" id="planL">‹</div><div class="arrow r" id="planR">›</div></div>
+    </div>
+  </div>
+
+  <!-- ROUTES -->
+  <section id="routes" class="section">
+    <h2>Popular Routes</h2>
+    <div class="grid2">
+      <div class="feature reveal"><strong>Colombo ⇄ Moratuwa (138)</strong><p class="muted">Every 6–10 minutes at peak. Seat status visible before you arrive at the stop.</p></div>
+      <div class="feature reveal"><strong>Galle ⇄ Colombo (212)</strong><p class="muted">Express with reservation support. Last-bus alert built in.</p></div>
+      <div class="feature reveal"><strong>Piliyandala ⇄ Moratuwa (45)</strong><p class="muted">Great coverage and frequent updates (2–5s).</p></div>
+      <div class="feature reveal"><strong>Campus Shuttle</strong><p class="muted">Private route with pass verification and QR check-ins.</p></div>
+    </div>
+  </section>
+
+  <!-- BOOKING -->
+  <section id="booking" class="section">
+    <h2>Booking & Payments</h2>
+    <div class="grid2">
+      <div class="feature reveal">
+        <strong>Reserve a Seat</strong>
+        <p class="muted">Pick a run, choose a stop, pay via QR. Your QR acts as boarding pass.</p>
+        <button class="btn primary" id="bookNow">Book Now</button>
+      </div>
+      <div class="feature reveal">
+        <strong>Driver App (1 phone)</strong>
+        <p class="muted">GPS + seat taps + QR verify. Ultra low data usage.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <div class="testimonials" id="testimonials">
+    <div class="wrap">
+      <h2 style="margin:0 0 8px;text-align: center;">Client Experience</h2>
+      <p class="muted" style="margin:0 0 12px;text-align: center;">What our partners say after switching to MyBus.</p>
+      <div class="hscroll" id="tScroll">
+        <div class="tcard">
+          <div class="trow"><img src="4.jpeg" alt=""><div><div class="tname">Vihangi Abeyekoon</div><div class="torg">Colombo Private Line</div></div></div>
+          <p>“Passengers love knowing the ETA. Our complaints dropped and bookings went up.”</p>
+        </div>
+        <div class="tcard">
+          <div class="trow"><img src="1.png" alt=""><div><div class="tname">Kalana Nethsara</div><div class="torg">Campus Shuttle</div></div></div>
+          <p>“QR check-in made mornings smooth. Drivers just scan and go.”</p>
+        </div>
+        <div class="tcard">
+          <div class="trow"><img src="2.jpg" alt=""><div><div class="tname">Nethmi Randulya</div><div class="torg">Intercity Express</div></div></div>
+          <p>“Premium plan’s alerts saved runs. Last-bus notifications are gold.”</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTACT with faces -->
+  <section id="contact" class="section">
+    <h2>Contact</h2>
+    <div class="grid2">
+      <div class="feature reveal">
+        <strong>Team MBK</strong>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:10px">
+          <div style="display:flex;gap:10px;align-items:center"><img src="8.png" alt="" style="width:44px;height:44px;border-radius:999px;object-fit:cover;border:2px solid rgba(255,255,255,.12)"><div><b>Lasith Eshan</b><div class="muted">078 829 6523</div></div></div>
+          <div style="display:flex;gap:10px;align-items:center"><img src="10.png" alt="" style="width:44px;height:44px;border-radius:999px;object-fit:cover;border:2px solid rgba(255,255,255,.12)"><div><b>Dineth Sewmina</b><div class="muted">070 525 8543</div></div></div>
+          <div style="display:flex;gap:10px;align-items:center"><img src="5.png" alt="" style="width:44px;height:44px;border-radius:999px;object-fit:cover;border:2px solid rgba(255,255,255,.12)"><div><b>Dulshi Ranaweera</b><div class="muted">071 407 1977</div></div></div>
+          <div style="display:flex;gap:10px;align-items:center"><img src="7.PNG" alt="" style="width:44px;height:44px;border-radius:999px;object-fit:cover;border:2px solid rgba(255,255,255,.12)"><div><b>Thiseni Sineka</b><div class="muted">070 773 3730</div></div></div>
+          <div style="display:flex;gap:10px;align-items:center"><img src="14.png" alt="" style="width:44px;height:44px;border-radius:999px;object-fit:cover;border:2px solid rgba(255,255,255,.12)"><div><b>Daneesha Dulmith</b><div class="muted">071 000 0000</div></div></div>
+        </div>
+        <section class="contact-grid">
+  <!-- LEFT COLUMN -->
+  <div class="left">
+    <!-- Your existing Team MBK card -->
+    <div class="card team-card">
+      <!-- ...your team list exactly as it is... -->
+    </div>
+
+    <!-- 👇 Interactive panel: now lives in the LEFT column -->
+    <div class="card actions-left fancy">
+  <!-- floating bubbles -->
+  <div class="bubble-field" aria-hidden="true">
+    <span></span><span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span><span></span>
+  </div>
+
+  <!-- actions -->
+  <button class="act" onclick="openWhatsApp(event)">💬 WhatsApp</button>
+  <button class="act" onclick="openEmail(event)">✉️ Email</button>
+  <button class="act" onclick="copyNumbers(event)">📋 Copy Numbers</button>
+  <button class="act" onclick="downloadVCF(event)">📲 Save vCard</button>
+</div>
+
+  <!-- RIGHT COLUMN (keep your demo/partnerships form here) -->
+  <div class="right">
+    <!-- your existing right card(s) -->
+  </div>
+</section>
+
+      </div>
+      <div class="feature reveal">
+  <strong>Demo & Partnerships</strong>
+  <div class="demo-card" id="demoWidget">
+    <div class="demo-row">
+      <label style="flex:2">Fleet size
+        <input type="range" id="fleet" min="1" max="50" value="5">
+      </label>
+      <div style="width:130px;text-align:right"><b id="fleetOut">5 buses</b></div>
+    </div>
+
+    <div class="demo-row">
+      <label>Plan
+        <select id="planSel">
+          <option value="Starter" data-price="250">Starter</option>
+          <option value="Plus" data-price="350">Plus</option>
+          <option value="Premium" data-price="490">Premium</option>
+          <option value="Fleet" data-price="390">Fleet (est.)</option>
+          <option value="Basic" data-price="0">Basic (Free)</option>
+          <option value="Enterprise" data-price="0">Enterprise (custom)</option>
+        </select>
+      </label>
+      <label style="display:flex;gap:8px;align-items:center;justify-content:flex-end">
+        <input type="checkbox" id="annual"> <span>Annual billing (2 mo off)</span>
+      </label>
+    </div>
+
+    <div class="quote" id="quoteBox">Estimate: LKR — / month</div>
+
+    <div class="demo-row">
+      <input id="demoName" placeholder="Your name">
+      <input id="demoEmail" placeholder="Email">
+    </div>
+    <input id="demoCompany" placeholder="Company / Operator">
+    <textarea id="demoMsg" placeholder="What routes? Any requirements?"></textarea>
+
+    <div class="demo-row">
+      <button class="btn primary" id="btnEmailQuote">Email Quote</button>
+      <button class="btn whatsapp" id="btnWAQuote">WhatsApp</button>
+    </div>
+    <div class="demo-help">We’ll reply in 24–48 hours. No spam.</div>
+  </div>
+  </section>
+
+  <!-- FOOTER with logo (logo at last) -->
+  <footer>
+    <div class="footbrand">
+      <img src="12.png" alt="MBK logo"><b>MyBus</b>
+    </div>
+    <div>© MyBus</div>
+  </footer>
+
+  <!-- MODALS -->
+  <div class="modal" id="modalReserve" role="dialog" aria-modal="true" aria-labelledby="reserveTitle">
+    <div class="box">
+      <div class="closex" data-close="#modalReserve">✕</div>
+      <h3 id="reserveTitle" style="margin:4px 0 10px">Reserve a Seat</h3>
+      <div class="rowform">
+        <label>Route
+          <select id="reserveRoute">
+            <option>138 — Colombo → Moratuwa</option>
+            <option>45 — Moratuwa → Piliyandala</option>
+            <option>212 — Galle → Colombo</option>
+          </select>
+        </label>
+        <label>Stop <input id="reserveStop" placeholder="e.g., Katubedda Junction" /></label>
+        <label>Time <input id="reserveTime" type="time" /></label>
+        <button class="btn primary" id="reservePay">Pay & Confirm (demo)</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modalTrack" role="dialog" aria-modal="true" aria-labelledby="trackTitle">
+    <div class="box">
+      <div class="closex" data-close="#modalTrack">✕</div>
+      <h3 id="trackTitle" style="margin:4px 0 10px">Tracking Started</h3>
+      <p class="muted">We’ll highlight your selected bus in the live lane and show ETA changes.</p>
+      <button class="btn primary" data-close="#modalTrack">Okay</button>
+    </div>
+  </div>
+
+<script>
+  function setupTestimonialFocus(){
+  const scroller = document.getElementById('tScroll');
+  if(!scroller) return;
+
+  // ---- build clones for infinite loop ----
+  const originals = Array.from(scroller.children);
+  if (originals.length < 2) return;
+
+  const firstClone = originals[0].cloneNode(true);
+  firstClone.dataset.clone = 'end';           // marks clone at end
+  const lastClone  = originals[originals.length-1].cloneNode(true);
+  lastClone.dataset.clone  = 'start';         // marks clone at start
+
+  scroller.insertBefore(lastClone, scroller.firstChild);
+  scroller.appendChild(firstClone);
+
+  // helper: center a given card
+  const centerCard = (card, smooth=true) => {
+    const target = card.offsetLeft + card.offsetWidth/2 - scroller.clientWidth/2;
+    scroller.scrollTo({ left: target, behavior: smooth ? 'smooth' : 'auto' });
+  };
+
+  // start centered on first real card
+  requestAnimationFrame(()=> centerCard(originals[0], false));
+
+  const allCards = Array.from(scroller.querySelectorAll('.tcard'));
+
+  const update = () => {
+    const mid = scroller.getBoundingClientRect().left + scroller.clientWidth/2;
+    let best = null, bestDist = Infinity;
+
+    allCards.forEach(card => {
+      const r = card.getBoundingClientRect();
+      const c = r.left + r.width/2;
+      const dist = Math.abs(mid - c);
+      if (dist < bestDist){ bestDist = dist; best = card; }
+
+      // subtle scale (0.98 → 1.02) and opacity (0.55 → 1.00)
+      const t = Math.min(dist / (scroller.clientWidth * 0.50), 1); // 0 center ... 1 far
+      const scale   = 0.98 + (1 - t) * 0.04;                        // max 1.02
+      const opacity = 0.55 + (1 - t) * 0.45;                        // max 1.00
+      card.style.transform = `scale(${scale})`;
+      card.style.opacity   = opacity.toFixed(2);
+      card.style.zIndex    = scale > 1.015 ? 3 : 1;
+    });
+
+    allCards.forEach(c => c.classList.remove('is-active'));
+    if (best) best.classList.add('is-active');
+  };
+
+  // snap + loop handling
+  let snapTimer;
+  const queueSnap = () => {
+    clearTimeout(snapTimer);
+    snapTimer = setTimeout(() => {
+      const active = scroller.querySelector('.tcard.is-active');
+      if (!active) return;
+
+      // smooth snap to the center
+      centerCard(active, true);
+
+      // if we landed on a clone, jump to the matching real card (no animation)
+      setTimeout(() => {
+        if (active.dataset.clone === 'end') {
+          centerCard(originals[0], false);                    // jump to first real
+        } else if (active.dataset.clone === 'start') {
+          centerCard(originals[originals.length-1], false);   // jump to last real
+        }
+      }, 220);
+    }, 120);
+  };
+
+  scroller.addEventListener('scroll', () => { update(); queueSnap(); });
+  window.addEventListener('resize', update);
+
+  // initial paint
+  update();
+  queueSnap();
+}
+
+
+  /* ---------- Demo data ---------- */
+  const runs = [
+    {id:138, route:'Colombo → Moratuwa', driver:'D-034', speed:36, seats:0.55, eta:10, last:false},
+    {id:45,  route:'Moratuwa → Piliyandala', driver:'D-071', speed:28, seats:0.95, eta:4,  last:false},
+    {id:212, route:'Galle → Colombo',       driver:'D-110', speed:70, seats:0.25, eta:20, last:true},
+    {id:187, route:'Colombo → Kandy',        driver:'D-021', speed:62, seats:0.62, eta:35, last:false},
+    {id:177, route:'Negombo → Colombo',      driver:'D-099', speed:44, seats:0.72, eta:18, last:false},
+  ];
+
+  // === REPLACE your current `const plans = [...]` with this ===
+const plans = [
+  {
+    name:'Basic ', badge:'Start here', price:'Free',
+    features:[
+      '1 bus • 20s refresh',
+      'Seat status (manual)',
+      'Public route page',
+      'Email support'
+    ],
+    cta:'Start Free'
+  },
+  {
+    name:'Starter', badge:'1–5 buses', price:'LKR 250 / bus / month',
+    features:[
+      'Live tracking (5s refresh)',
+      'Seat status + ETA model',
+      'QR reservations (10/day)',
+      'WhatsApp alerts (basic)',
+      'Email + chat support'
+    ],
+    cta:'Choose Starter'
+  },
+  {
+    name:'Plus', badge:'More reservations', price:'LKR 350 / bus / month',
+    features:[
+      '5s refresh + history (24h)',
+      'Unlimited reservations',
+      'Stop occupancy heatmap',
+      'Basic analytics',
+      'Priority chat support'
+    ],
+    cta:'Choose Plus'
+  },
+  {
+    name:'Premium', badge:'Popular', price:'LKR 490 / bus / month',
+    features:[
+      '2s refresh + 30-day history',
+      'Smart ETA + last-bus alerts',
+      'Unlimited QR check-in',
+      'WhatsApp alerts (priority)',
+      'Advanced analytics dashboard'
+    ],
+    cta:'Choose Premium'
+  },
+  {
+    name:'Fleet', badge:'10+ buses', price:'from LKR 390 / bus / month',
+    features:[
+      'Bulk onboarding & training',
+      'Central dispatch console',
+      'Route health & KPIs',
+      'Volume discounts',
+      'Priority support queue'
+    ],
+    cta:'Talk to Sales'
+  },
+  {
+    name:'Enterprise', badge:'Custom SLA', price:'Contact us',
+    features:[
+      'SLA + dedicated manager',
+      'SSO / RBAC / audit logs',
+      'Private routes & passes',
+      'Sandbox + API access',
+      'On-prem / region hosting'
+    ],
+    cta:'Contact Sales'
+  },
+  {
+    name:'Campus / School', badge:'Passes + kiosks', price:'Contact us',
+    features:[
+      'Student/Staff pass verification',
+      'Fixed shuttle windows',
+      'Attendance exports',
+      'Kiosk display mode',
+      'Parent notifications'
+    ],
+    cta:'Contact Sales'
+  },
+  {
+    name:'City / Gov', badge:'Tender-ready', price:'Contact us',
+    features:[
+      'Public headway & OTP',
+      'GTFS / GTFS-RT feeds',
+      'Compliance reports',
+      'Accessibility features',
+      'Multi-operator support'
+    ],
+    cta:'Contact Sales'
+  }
+];
+
+
+  const hscroll = document.getElementById('hscroll');
+  const kBuses = document.getElementById('kpiBuses');
+  const kEta = document.getElementById('kpiETA');
+  const kUsers = document.getElementById('kpiUsers');
+
+  function seatText(p){ return p>=.95?'Full':p>=.70?'Almost full':'Seats available' }
+
+  function renderLane(){
+    hscroll.innerHTML = '';
+    runs.forEach((r, idx)=>{
+      const t = document.createElement('div');
+      t.className = 'tile';
+      t.innerHTML = `
+        <h3>Bus ${r.id}</h3>
+        <div class="muted">${r.route}</div>
+        <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+          <span class="pill seat">${seatText(r.seats)}</span>
+          <span class="pill eta">ETA: ${r.eta}m</span>
+          <span class="pill ${r.last?'last':''}">${r.last?'Last bus':'More runs'}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px">
+          <small class="muted">Driver ${r.driver}</small>
+          <small class="muted">Speed ${r.speed} km/h</small>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button class="btn primary" data-track="${idx}">Track</button>
+          <button class="btn" data-reserve="${idx}">Reserve</button>
+        </div>`;
+      hscroll.appendChild(t);
+    });
+  }
+
+  function updateKpis(){
+    kBuses.textContent = runs.length;
+    const avg = Math.round(runs.reduce((s,r)=>s+r.eta,0)/runs.length);
+    kEta.textContent = `${avg} min`;
+    kUsers.textContent = Math.floor(120 + Math.random()*400);
+  }
+
+  // HERO HUD
+  let idx = 0;
+  function updateHero(){
+    const r = runs[idx];
+    document.getElementById('busTitle').textContent = `Bus ${r.id} — ${r.route}`;
+    document.getElementById('busSub').textContent = `Driver ${r.driver} • Live run`;
+    document.getElementById('seatPill').textContent = `Seats: ${seatText(r.seats)}`;
+    document.getElementById('etaPill').textContent = `ETA: ${r.eta} min`;
+    document.getElementById('lastPill').textContent = r.last ? 'Last bus' : 'Not last bus';
+    document.getElementById('speedTxt').textContent = `${r.speed} km/h`;
+  }
+
+  function tick(){
+    runs.forEach(r=>{
+      r.speed = Math.max(12, Math.round(r.speed + (Math.random()*8-4)));
+      r.seats = Math.min(.99, Math.max(.05, +(r.seats + (Math.random()*.08-.04)).toFixed(2)));
+      r.eta = Math.max(1, Math.round(r.eta + (Math.random()*6-3)));
+    });
+    idx = (idx+1)%runs.length;
+    updateHero(); renderLane(); updateKpis();
+  }
+
+  /* ---------- Interactions ---------- */
+  const scene = document.getElementById('scene');
+  const city  = document.getElementById('city');
+
+  // mouse parallax camera
+  scene.addEventListener('mousemove', (e)=>{
+    const r = scene.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - .5;
+    const y = (e.clientY - r.top)  / r.height - .5;
+    city.style.transform = `rotateX(${15 - y*8}deg) rotateY(${x*10}deg)`;
+  });
+
+  // slight scroll-based tilt
+  document.addEventListener('scroll', ()=>{
+    const t = Math.min(1, window.scrollY/600);
+    scene.style.transform = `translateY(${t*6}px)`;
+  });
+
+  // top buttons
+  document.getElementById('btnTrack').onclick = ()=> openModal('#modalTrack');
+  document.getElementById('btnLearn').onclick = ()=> document.querySelector('a[href="#plans"]').click();
+  document.getElementById('ctaBook').onclick   = ()=> openModal('#modalReserve');
+
+  // hero HUD buttons
+  document.getElementById('trackBtn').onclick   = ()=> openModal('#modalTrack');
+  document.getElementById('reserveBtn').onclick = ()=> openModal('#modalReserve');
+
+  function openModal(sel){ document.querySelector(sel).style.display='flex' }
+  function closeModal(sel){ document.querySelector(sel).style.display='none' }
+  document.querySelectorAll('[data-close]').forEach(el=> el.onclick = ()=> closeModal(el.getAttribute('data-close')));
+  document.querySelectorAll('.closex').forEach(el=> el.onclick = ()=> closeModal(el.getAttribute('data-close')));
+  document.getElementById('reservePay').onclick = ()=>{
+    const route = document.getElementById('reserveRoute').value;
+    const stop  = document.getElementById('reserveStop').value || '(any stop)';
+    const time  = document.getElementById('reserveTime').value || '(ASAP)';
+    alert(`Reservation confirmed (demo)\nRoute: ${route}\nStop: ${stop}\nTime: ${time}\nYour QR will appear in the app.`);
+    closeModal('#modalReserve');
+  };
+  document.getElementById('bookNow').onclick = ()=> openModal('#modalReserve');
+
+  // lane controls
+  function attachLaneHandlers(){
+    hscroll.querySelectorAll('[data-track]').forEach(btn=> btn.onclick = ()=> openModal('#modalTrack'));
+    hscroll.querySelectorAll('[data-reserve]').forEach(btn=> btn.onclick = ()=> openModal('#modalReserve'));
+  }
+  document.getElementById('arrowL').onclick = ()=> hscroll.scrollBy({left:-320,behavior:'smooth'});
+  document.getElementById('arrowR').onclick = ()=> hscroll.scrollBy({left:320,behavior:'smooth'});
+  hscroll.addEventListener('keydown', e=>{
+    if(e.key==='ArrowLeft') hscroll.scrollBy({left:-320,behavior:'smooth'});
+    if(e.key==='ArrowRight') hscroll.scrollBy({left:320,behavior:'smooth'});
+  });
+  (function dragScroll(el){
+    let isDown=false,startX,scrollLeft;
+    el.addEventListener('mousedown',e=>{isDown=true;startX=e.pageX-el.offsetLeft;scrollLeft=el.scrollLeft});
+    el.addEventListener('mouseleave',()=>isDown=false);
+    el.addEventListener('mouseup',()=>isDown=false);
+    el.addEventListener('mousemove',e=>{ if(!isDown) return; e.preventDefault(); const x=e.pageX-el.offsetLeft; const walk=(x-startX)*1.2; el.scrollLeft=scrollLeft-walk; });
+  })(hscroll);
+
+  // PLANS render + arrows
+  const plansScroll = document.getElementById('plansScroll');
+  function renderPlans(){
+    plansScroll.innerHTML='';
+    plans.forEach(p=>{
+      const card = document.createElement('div');
+      card.className='plan tile';
+      if(p.badge) card.setAttribute('data-badge', p.badge);
+      card.innerHTML = `
+        <h3>${p.name}</h3>
+        <div class="price">${p.price}</div>
+        ${p.features.map(f=>`<div class="feat">${f}</div>`).join('')}
+        <button class="btn primary">${p.cta}</button>
+      `;
+      plansScroll.appendChild(card);
+    });
+  }
+  document.getElementById('planL').onclick = ()=> plansScroll.scrollBy({left:-320,behavior:'smooth'});
+  document.getElementById('planR').onclick = ()=> plansScroll.scrollBy({left:320,behavior:'smooth'});
+
+  // reveal on scroll
+  const io = new IntersectionObserver((ents)=> ents.forEach(ent=> ent.target.classList.toggle('on', ent.isIntersecting)),{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(el=> io.observe(el));
+  // === Demo widget logic ===
+const SALES_EMAIL = 'hello@mybuskit.example';
+const SALES_WHATSAPP = '+94788296523'; // Lasith — change if you prefer
+
+function formatLKR(n){ return 'LKR ' + Math.round(n).toLocaleString('en-LK'); }
+
+function setupDemoWidget(){
+  const fleet = document.getElementById('fleet');
+  const fleetOut = document.getElementById('fleetOut');
+  const planSel = document.getElementById('planSel');
+  const annual = document.getElementById('annual');
+  const quoteBox = document.getElementById('quoteBox');
+
+  const nameEl = document.getElementById('demoName');
+  const emailEl = document.getElementById('demoEmail');
+  const compEl = document.getElementById('demoCompany');
+  const msgEl = document.getElementById('demoMsg');
+
+  function updateQuote(){
+    const buses = +fleet.value;
+    const price = +planSel.selectedOptions[0].dataset.price; // LKR / bus / month
+    fleetOut.textContent = buses + (buses==1 ? ' bus' : ' buses');
+
+    if(price === 0){
+      quoteBox.textContent = (planSel.value === 'Basic')
+        ? 'Estimate: Free'
+        : 'Estimate: Custom pricing — contact us';
+      return;
+    }
+
+    const monthly = price * buses;
+    if(annual.checked){
+      const yearly = monthly * 10;  // 2 months free
+      quoteBox.textContent = `Estimate: ${formatLKR(monthly)} / month • ${formatLKR(yearly)} / year (annual)`;
+    }else{
+      quoteBox.textContent = `Estimate: ${formatLKR(monthly)} / month`;
+    }
+  }
+
+  function buildMessage(){
+    const buses = +fleet.value;
+    const plan = planSel.value;
+    const price = +planSel.selectedOptions[0].dataset.price;
+    const monthly = price * buses;
+    const annualLine = annual.checked && price>0 ? `Annual: ${formatLKR(monthly*10)} / year (2 mo off)\n` : '';
+    return (
+`Hi MyBus team,
+
+I'd like a demo.
+
+Name: ${nameEl.value || '-'}
+Company: ${compEl.value || '-'}
+Email: ${emailEl.value || '-'}
+
+Plan: ${plan}
+Fleet size: ${buses}
+Estimate: ${price ? formatLKR(monthly)+' / month' : (plan==='Basic'?'Free':'Custom')}
+${annualLine}
+Notes:
+${msgEl.value || '-'}
+
+Sent from MyBus website.`
+    );
+  }
+
+  function mailto(){
+    const subject = `Demo request — ${planSel.value} (${fleet.value} bus${fleet.value==1?'':'es'})`;
+    const body = buildMessage();
+    window.location.href = `mailto:${SALES_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  }
+
+  function whatsapp(){
+    const text = buildMessage();
+    // if you want an open-ended chat choose wa.me/?text=...
+    const url = `https://wa.me/${SALES_WHATSAPP.replace('+','')}/?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+  }
+
+  ['input','change'].forEach(ev=>{
+    fleet.addEventListener(ev, updateQuote);
+    planSel.addEventListener(ev, updateQuote);
+    annual.addEventListener(ev, updateQuote);
+  });
+  document.getElementById('btnEmailQuote').addEventListener('click', mailto);
+  document.getElementById('btnWAQuote').addEventListener('click', whatsapp);
+
+  updateQuote();
+}
+
+// tiny helper: capture click position for ripple
+document.addEventListener('click', (e)=>{
+  const b = e.target.closest('.act');
+  if(!b) return;
+  const rect = b.getBoundingClientRect();
+  b.style.setProperty('--rx', `${e.clientX - rect.left}px`);
+  b.style.setProperty('--ry', `${e.clientY - rect.top}px`);
+});
+
+function openWhatsApp(){
+  const url = 'https://wa.me/94788296523?text=' + encodeURIComponent('Hello Team MBK! 👋');
+  window.open(url, '_blank', 'noopener');
+}
+
+function openEmail(){
+  try{
+    const url = `mailto:techlasi333@gmail.com?subject=${encodeURIComponent('Inquiry from MBK Website')}&body=${encodeURIComponent('Hi Team, I would like to...')}`;
+    window.location.href = url;
+  }catch(err){
+    console.error(err);
+    alert('Could not open email client. Please email: techlasi333@gmail.com');
+  }
+}
+
+function copyNumbers(){
+  const text = [
+    'Lasith - 0788296523',
+    'Dineth - 0705258543',
+    'Dulshi - 0714071977',
+    'Thiseni - 0707733730',
+    'Daneesha - 0710000000'
+  ].join('\n');
+
+  if (navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(text).then(
+      ()=> alert('📋 Numbers copied!'),
+      ()=> fallbackCopy(text)
+    );
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text){
+  const t = document.createElement('textarea');
+  t.value = text; document.body.appendChild(t);
+  t.select(); t.setSelectionRange(0, 99999);
+  try{ document.execCommand('copy'); alert('📋 Numbers copied!'); }
+  catch{ prompt('Copy numbers:', text); }
+  finally{ t.remove(); }
+}
+
+function downloadVCF(){
+  const vcf = `BEGIN:VCARD
+VERSION:3.0
+FN:Team MBK
+EMAIL:techlasi333@gmail.com
+TEL;TYPE=CELL:+94788296523
+TEL;TYPE=CELL:+94705258543
+TEL;TYPE=CELL:+94714071977
+TEL;TYPE=CELL:+94707733730
+TEL;TYPE=CELL:+94710000000
+END:VCARD`;
+  try{
+    const blob = new Blob([vcf], {type:'text/vcard'});
+    const a = Object.assign(document.createElement('a'), {
+      href: URL.createObjectURL(blob), download: 'TeamMBK.vcf'
+    });
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(a.href);
+  }catch(err){
+    console.error(err);
+    alert('Download failed. I’ll open the data so you can save it manually.');
+    window.open('data:text/vcard;charset=utf-8,'+encodeURIComponent(vcf), '_blank');
+  }
+}
+
+
+  // init
+  function init(){ renderLane(); attachLaneHandlers(); updateKpis(); updateHero(); renderPlans();setupTestimonialFocus();setupDemoWidget();  setInterval(()=>{ tick(); attachLaneHandlers(); }, 5000); }
+  init();
+</script>
+</body>
+</html>
