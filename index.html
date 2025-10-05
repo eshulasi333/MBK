@@ -479,7 +479,72 @@ textarea{resize:vertical;min-height:70px}
   pointer-events:none; z-index:-1;
 }
 
-  
+ /* ===== MOBILE FIX PACK (drop-in) ===== */
+@media (max-width: 600px){
+
+  /* global spacing & type */
+  html,body{font-size:15px;}
+  h1{font-size:28px; line-height:1.18; margin-bottom:6px;}
+  .card{padding:14px; border-radius:14px;}
+
+  /* navbar: tighter & scrollable links */
+  .nav .row{padding:10px 12px; gap:10px;}
+  .brand{font-size:16px}
+  .brand img.logo-img{width:28px;height:28px;border-radius:8px}
+  .navlinks{gap:8px; overflow-x:auto; max-width:55vw; padding-bottom:2px}
+  .cta{padding:8px 10px; border-radius:10px; font-weight:700}
+
+  /* team strip */
+  .ts-wrap{padding:8px 12px; gap:10px}
+  .ts-logo{width:32px;height:32px;border-radius:8px}
+  .ts-people{gap:10px}
+  .person img{width:40px;height:40px}
+
+  /* hero */
+  .hero{min-height:72vh; padding:54px 12px 26px}
+  .hero .wrap{display:block}
+  .kpi{min-width:120px}
+  .btns{gap:8px; flex-wrap:wrap}
+
+  /* 3D scene smaller */
+  .scene3d{height:320px; border-radius:14px}
+  .buscard{position:static; width:auto; margin-top:10px; padding:12px; border-radius:12px}
+  .buslogo-img{width:38px;height:38px;border-radius:8px}
+
+  /* carousels: narrower tiles so they fit */
+  .hscroll{gap:10px}
+  .tile{min-width:240px; padding:12px; border-radius:12px}
+  .plan{min-width:260px; padding:14px; border-radius:14px}
+  .tcard{min-width:260px; padding:16px}
+
+  /* arrow buttons smaller & inside */
+  .arrow{width:36px;height:36px; top:42%}
+  .arrow.l{left:0} .arrow.r{right:0}
+
+  /* routes/booking two-col → single */
+  .section{margin:40px auto; padding:0 12px}
+  .grid2{grid-template-columns:1fr; gap:12px}
+
+  /* contact grid */
+  .contact-grid{grid-template-columns:1fr; gap:14px}
+  .act{padding:10px 12px; border-radius:12px}
+
+  /* testimonials spotlight */
+  #tScroll{gap:14px; scroll-padding-left:40%; scroll-padding-right:40%}
+  #tScroll .tcard{min-width: clamp(240px, 78vw, 360px);}
+
+  /* footer */
+  footer{margin:40px 0 24px}
+  .footbrand img{width:34px;height:34px;border-radius:8px}
+}
+
+/* tiny phones */
+@media (max-width: 380px){
+  .tile{min-width:220px}
+  .plan{min-width:230px}
+  .ts-people{gap:8px}
+}
+ 
 </style>
 </head>
 <body>
@@ -1264,5 +1329,6 @@ END:VCARD`;
 </script>
 </body>
 </html>
+
 
 
