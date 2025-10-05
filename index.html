@@ -478,8 +478,7 @@ textarea{resize:vertical;min-height:70px}
   background: radial-gradient(60% 40% at 0% 100%, rgba(14,165,233,.12), transparent 60%);
   pointer-events:none; z-index:-1;
 }
-
- /* ===== MOBILE FIX PACK (drop-in) ===== */
+/* ===== MOBILE FIX PACK (drop-in) ===== */
 @media (max-width: 600px){
 
   /* global spacing & type */
@@ -544,7 +543,31 @@ textarea{resize:vertical;min-height:70px}
   .plan{min-width:230px}
   .ts-people{gap:8px}
 }
- 
+/* ----- OPAQUE MODAL FIX ----- */
+.modal{
+  background: rgba(3,10,20,.82) !important;  /* darker overlay (no see-through) */
+  z-index: 9999;                              /* above everything */
+}
+
+/* solid card instead of translucent gradients */
+.modal .box{
+  background: #0d2036 !important;            /* solid navy */
+  border: 1px solid rgba(255,255,255,.12) !important;
+  box-shadow: 0 28px 80px rgba(0,0,0,.65);
+}
+
+/* inputs in the modal: solid fill */
+.modal .box input,
+.modal .box select,
+.modal .box textarea{
+  background: #12243c !important;
+  border: 1px solid rgba(255,255,255,.15) !important;
+}
+
+/* optional: prevent background page from scrolling when modal is open */
+body.modal-open{ overflow: hidden; }
+
+  
 </style>
 </head>
 <body>
@@ -571,7 +594,7 @@ textarea{resize:vertical;min-height:70px}
         <figure class="person"><img src="8.png" alt="Lasith Eshan"><figcaption>Lasith Eshan</figcaption></figure>
         <figure class="person"><img src="10.png" alt="Dineth Sewmina"><figcaption>Dineth Sewmina</figcaption></figure>
         <figure class="person"><img src="5.png" alt="Dulshi Ranaweera"><figcaption>Dulshi Ranaweera</figcaption></figure>
-        <figure class="person"><img src="7.PNG" alt="Thiseni Sineka"><figcaption>Thiseni Sineka</figcaption></figure>
+        <figure class="person"><img src="7.png" alt="Thiseni Sineka"><figcaption>Thiseni Sineka</figcaption></figure>
         <figure class="person"><img src="14.png" alt="Daneesha Dulmith"><figcaption>Daneesha Dulmith</figcaption></figure>
       </div>
     </div>
@@ -614,7 +637,7 @@ textarea{resize:vertical;min-height:70px}
               <div class="bushead">
                 <img class="buslogo-img" src="12.png" alt="MBK">
                 <div>
-                  <strong id="busTitle">Bus 138 — Colombo → Moratuwa</strong>
+                  <strong id="busTitle">Bus 138 — Colombo → Homagama</strong>
                   <div class="muted" id="busSub">Driver D-034 • Live run</div>
                 </div>
               </div>
@@ -663,8 +686,8 @@ textarea{resize:vertical;min-height:70px}
     <h2>Popular Routes</h2>
     <div class="grid2">
       <div class="feature reveal"><strong>Colombo ⇄ Moratuwa (138)</strong><p class="muted">Every 6–10 minutes at peak. Seat status visible before you arrive at the stop.</p></div>
-      <div class="feature reveal"><strong>Galle ⇄ Colombo (212)</strong><p class="muted">Express with reservation support. Last-bus alert built in.</p></div>
-      <div class="feature reveal"><strong>Piliyandala ⇄ Moratuwa (45)</strong><p class="muted">Great coverage and frequent updates (2–5s).</p></div>
+      <div class="feature reveal"><strong>Panadura ⇄ Colombo (100)</strong><p class="muted">Express with reservation support. Last-bus alert built in.</p></div>
+      <div class="feature reveal"><strong>Mount Lavinia ⇄ Kottawa (255)</strong><p class="muted">Great coverage and frequent updates (2–5s).</p></div>
       <div class="feature reveal"><strong>Campus Shuttle</strong><p class="muted">Private route with pass verification and QR check-ins.</p></div>
     </div>
   </section>
@@ -714,11 +737,11 @@ textarea{resize:vertical;min-height:70px}
       <div class="feature reveal">
         <strong>Team MBK</strong>
         <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:10px">
-          <div style="display:flex;gap:10px;align-items:center"><img src="8.png" alt="" style="width:44px;height:44px;border-radius:999px;object-fit:cover;border:2px solid rgba(255,255,255,.12)"><div><b>Lasith Eshan</b><div class="muted">078 829 6523</div></div></div>
-          <div style="display:flex;gap:10px;align-items:center"><img src="10.png" alt="" style="width:44px;height:44px;border-radius:999px;object-fit:cover;border:2px solid rgba(255,255,255,.12)"><div><b>Dineth Sewmina</b><div class="muted">070 525 8543</div></div></div>
-          <div style="display:flex;gap:10px;align-items:center"><img src="5.png" alt="" style="width:44px;height:44px;border-radius:999px;object-fit:cover;border:2px solid rgba(255,255,255,.12)"><div><b>Dulshi Ranaweera</b><div class="muted">071 407 1977</div></div></div>
-          <div style="display:flex;gap:10px;align-items:center"><img src="7.PNG" alt="" style="width:44px;height:44px;border-radius:999px;object-fit:cover;border:2px solid rgba(255,255,255,.12)"><div><b>Thiseni Sineka</b><div class="muted">070 773 3730</div></div></div>
-          <div style="display:flex;gap:10px;align-items:center"><img src="14.png" alt="" style="width:44px;height:44px;border-radius:999px;object-fit:cover;border:2px solid rgba(255,255,255,.12)"><div><b>Daneesha Dulmith</b><div class="muted">071 000 0000</div></div></div>
+          <div style="display:flex;gap:10px;align-items:center"><img src="8.png" alt="" style="width:44px;height:44px;border-radius:999px;object-fit:cover;border:2px solid rgba(255,255,255,.12)"><div><b>Lasith Eshan</b><div class="muted">techlasi333@gmail.com</div></div></div>
+          <div style="display:flex;gap:10px;align-items:center"><img src="10.png" alt="" style="width:44px;height:44px;border-radius:999px;object-fit:cover;border:2px solid rgba(255,255,255,.12)"><div><b>Dineth Sewmina</b><div class="muted">dinethuni@gmail.com</div></div></div>
+          <div style="display:flex;gap:10px;align-items:center"><img src="5.png" alt="" style="width:44px;height:44px;border-radius:999px;object-fit:cover;border:2px solid rgba(255,255,255,.12)"><div><b>Dulshi Ranaweera</b><div class="muted">rkmdulshi@gmail.com</div></div></div>
+          <div style="display:flex;gap:10px;align-items:center"><img src="7.PNG" alt="" style="width:44px;height:44px;border-radius:999px;object-fit:cover;border:2px solid rgba(255,255,255,.12)"><div><b>Thiseni Sineka</b><div class="muted">thisenirathnayake@gmail.com</div></div></div>
+          <div style="display:flex;gap:10px;align-items:center"><img src="14.png" alt="" style="width:44px;height:44px;border-radius:999px;object-fit:cover;border:2px solid rgba(255,255,255,.12)"><div><b>Daneesha Dulmith</b><div class="muted">dulmith24@gmail.com</div></div></div>
         </div>
         <section class="contact-grid">
   <!-- LEFT COLUMN -->
@@ -809,9 +832,11 @@ textarea{resize:vertical;min-height:70px}
       <div class="rowform">
         <label>Route
           <select id="reserveRoute">
-            <option>138 — Colombo → Moratuwa</option>
-            <option>45 — Moratuwa → Piliyandala</option>
-            <option>212 — Galle → Colombo</option>
+            <option>138 — Colombo → Kottawa</option>
+            <option>100 — Moratuwa → Colombo</option>
+            <option>02 — Galle → Colombo</option>
+            <option>120 — Colombo → Horana</option>
+            <option>255 — Mount Lavinia → Kottawa</option>
           </select>
         </label>
         <label>Stop <input id="reserveStop" placeholder="e.g., Katubedda Junction" /></label>
@@ -914,11 +939,11 @@ textarea{resize:vertical;min-height:70px}
 
   /* ---------- Demo data ---------- */
   const runs = [
-    {id:138, route:'Colombo → Moratuwa', driver:'D-034', speed:36, seats:0.55, eta:10, last:false},
-    {id:45,  route:'Moratuwa → Piliyandala', driver:'D-071', speed:28, seats:0.95, eta:4,  last:false},
-    {id:212, route:'Galle → Colombo',       driver:'D-110', speed:70, seats:0.25, eta:20, last:true},
-    {id:187, route:'Colombo → Kandy',        driver:'D-021', speed:62, seats:0.62, eta:35, last:false},
-    {id:177, route:'Negombo → Colombo',      driver:'D-099', speed:44, seats:0.72, eta:18, last:false},
+    {id:138, route:'Colombo → Homagama', driver:'D-034', speed:36, seats:0.55, eta:10, last:false},
+    {id:100,  route:'Moratuwa → Colombo', driver:'D-071', speed:28, seats:0.95, eta:4,  last:false},
+    {id:255, route:'Mount Lavinia → Kottawa',       driver:'D-110', speed:70, seats:0.25, eta:20, last:true},
+    {id:120, route:'Colombo → Horana',        driver:'D-021', speed:62, seats:0.62, eta:35, last:false},
+    {id:177, route:'Kaduwela → Colombo',      driver:'D-099', speed:44, seats:0.72, eta:18, last:false},
   ];
 
   // === REPLACE your current `const plans = [...]` with this ===
@@ -1287,6 +1312,14 @@ function copyNumbers(){
     fallbackCopy(text);
   }
 }
+function openModal(sel){
+  document.querySelector(sel).style.display='flex';
+  document.body.classList.add('modal-open');
+}
+function closeModal(sel){
+  document.querySelector(sel).style.display='none';
+  document.body.classList.remove('modal-open');
+}
 
 function fallbackCopy(text){
   const t = document.createElement('textarea');
@@ -1329,7 +1362,3 @@ END:VCARD`;
 </script>
 </body>
 </html>
-
-
-
-
